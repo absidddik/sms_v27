@@ -16,9 +16,34 @@ class PDFController extends Controller
 {
     public $isSubmitted = false;
 
-    public function thirty_percent_mark($e_id, $c_id, $s_id)
+    public function thirty_percent_mark($e_id, $c_id, $s_id,$format)
     {
 
+        $results =  $this->get_result($e_id, $c_id, $s_id);
+
+        $c_e_detail = CourseEnroll::where('exam_time_id',$e_id)->where('course_id',$c_id)->where('semester_id',$s_id)
+                                    ->where('teacher_id',Auth::user()->user_id)->first();
+        if ($format=='full') {
+            $test_array = ['s'=>1,'a'=>1,'ct'=>1,'m'=>1,'t'=>1,'g'=>1];
+        } elseif ($format=='thirty') {
+            // thirty
+            $test_array = ['s'=>0,'a'=>1,'ct'=>1,'m'=>1,'t'=>0,'g'=>0];
+        } elseif ($format=='WOTG') { 
+            // without total and grade
+            $test_array = ['s'=>1,'a'=>1,'ct'=>1,'m'=>1,'t'=>0,'g'=>0];
+        } elseif ($format=='WOG') {
+            // without grade
+            $test_array = ['s'=>1,'a'=>1,'ct'=>1,'m'=>1,'t'=>1,'g'=>0];
+        }
+
+        $pdf = PDF::loadView('teacher.pdf.full_result',['results'=>$results,'exam_time_id'=>$e_id,'course_id'=>$c_id,
+                                'semester_id'=>$s_id,'ce_detail'=>$c_e_detail,'c_show'=>$test_array]);
+        $pdf->setPaper('A4', 'portal');
+        return $pdf->download($c_e_detail->exam_time->exam_year.' '.time().'.pdf');
+    }
+
+    public function get_result($e_id, $c_id, $s_id)
+    {
         $sql = 'SELECT internal_seventy_percent_marks.total as seventy_total, internal_thirty_percent_marks.*, students.exam_roll ';
         $sql .= 'FROM internal_seventy_percent_marks ';
         $sql .= 'INNER JOIN students ';
@@ -35,27 +60,7 @@ class PDFController extends Controller
         $sql .= 'internal_seventy_percent_marks.semester_id = '.$s_id.' AND ';
         $sql .= 'internal_seventy_percent_marks.teacher_id = '.Auth::user()->user_id.' ';
 
-
-        $results =  DB::select($sql);
-
-        $c_e_detail = CourseEnroll::where('exam_time_id',$e_id)->where('course_id',$c_id)->where('semester_id',$s_id)
-                                    ->where('teacher_id',Auth::user()->user_id)->first();
-        $test_array = ['g'=>1,'t'=>1];
-
-        $pdf = PDF::loadView('teacher.pdf.full_result',['results'=>$results,'exam_time_id'=>$e_id,'course_id'=>$c_id,
-                                'semester_id'=>$s_id,'ce_detail'=>$c_e_detail,'c_show'=>$test_array]);
-        $pdf->setPaper('A4', 'portal');
-        return $pdf->download($c_e_detail->exam_time->exam_year.' '.time().'.pdf');
-
-
-        // return view('teacher.pdf.full_result')
-        //         ->with('results', $results)
-        //         ->with('exam_time_id', $e_id)
-        //         ->with('course_id', $c_id)
-        //         ->with('semester_id', $s_id)
-        //         ->with('ce_detail', $c_e_detail)
-        //         ->with('c_show', $test_array)
-        //         ->with('isSubmitted', $this->isSubmitted);
+        return DB::select($sql);
     }
 
     public function internal_seventy_percent_mark($course_e_id='')

@@ -38,7 +38,7 @@ class CreateInternalSeventyPercentMarksTable extends Migration
             $table->decimal('q_14',4,2);
             $table->decimal('q_15',4,2);
 
-            $table->decimal('total',4,2);
+            $table->decimal('total',5,2);
 
             $table->timestamps();
 

@@ -12,6 +12,7 @@ use App\Models\Teacher\SuppMark;
 use App\Models\Admin\CourseEnroll;
 use Illuminate\Support\Facades\DB;
 use App\Models\Teacher\SuppLabMark;
+use App\Models\Teacher\ProjectWork;
 use App\Models\Teacher\SuppVivaVoce;
 use App\Http\Controllers\Controller;
 use App\Models\SuppEnroll\SuppEnroll;
@@ -270,6 +271,49 @@ class ResultViewController extends Controller
         }
 
         return view('teacher.result.show.viva_voce')
+        ->with('course_e',CourseEnroll::find($course_e_id))
+        ->with('results',$results);
+    }
+
+    public function projectShow($course_e_id,$semester_id)
+    {
+        $sql = 'SELECT students.exam_roll,students.id FROM students ';
+        $sql .= 'INNER JOIN student_enrolls ';
+        $sql .= 'ON student_enrolls.student_id = students.id ';
+        $sql .= 'WHERE student_enrolls.semester_id = ' . $semester_id;
+
+        $students = DB::select($sql);
+
+        $sql = 'SELECT * FROM course_enrolls ';
+        $sql .= 'LEFT JOIN internal_seventy_percent_marks as inter ';
+        $sql .= 'ON course_enrolls.semester_id = inter.semester_id ';
+        $sql .= 'WHERE course_enrolls.teacher_id = inter.teacher_id ';
+        $sql .= 'AND course_enrolls.course_id = inter.course_id ';
+        $sql .= 'AND course_enrolls.id = ' . $course_e_id;
+
+        $project_work_result = DB::select($sql);
+
+        //........temp array for combine student and 30 result
+        $results = [];
+
+        foreach ($students as $s) {
+            $r = [
+                'student'=>$s,
+                'result'=> new ProjectWork(),
+            ];
+
+            //...........if student has 30 marks
+            foreach ($project_work_result as $pwr) {
+                if ($s->id == $pwr->student_id) {
+                    $r['result'] = $pwr;
+                    break;
+                }
+            }
+
+            $results[] = $r;
+        }
+
+        return view('teacher.result.show.project_work')
         ->with('course_e',CourseEnroll::find($course_e_id))
         ->with('results',$results);
     }

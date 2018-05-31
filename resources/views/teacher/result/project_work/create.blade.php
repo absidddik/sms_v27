@@ -11,7 +11,7 @@
 @section('content')
 <div class="row">
 	<div class="col-sm-5">
-		<a class="btn btn-default" href="{{route('internal.result.lab-mark.show', ['course_e_id'=>$course_e->id,'semester_id'=>$course_e->semester_id])}}">Back</a>
+		<a class="btn btn-default" href="{{route('internal.result.viva-voce.show', ['course_e_id'=>$course_e->id,'semester_id'=>$course_e->semester_id])}}">Back</a>
 	</div>
 	<br><br>
 	<div class="col-sm-12">
@@ -78,57 +78,29 @@
 		<div class="col-md-7">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h4>Lab Mark</h4>
+					<h4>Project Work Mark</h4>
 				</div>
 				<style type="text/css">
 					.readonly_input{
 						border: 0 none;
 						border-color: white;
-						background-color: #fff;
+						background-color: white;
 						padding-top: 7px;
 						padding-left: 13px;
 					}
 				</style>
 				<div class="panel-body">
-					@if ($lab_mark->inter_thirty_id)
-					{!! Form::model($lab_mark,['route' => ['internal.lab-mark.update',$lab_mark->inter_thirty_id] ,'method'=>'put','class'=>'form-horizontal','id'=>'myform']) !!}
+					@if (isset($project_work_mark))
+					{!! Form::model($project_work_mark,['route' => ['internal.project-work-mark.update',$project_work_mark->id] ,'method'=>'put','class'=>'form-horizontal','id'=>'myform']) !!}
 					@else	
-					{!! Form::open(['route' => 'internal.lab-mark.store' ,'method'=>'post','class'=>'form-horizontal','id'=>'myform']) !!}
+					{!! Form::open(['route' => 'internal.project-work-mark.store' ,'method'=>'post','class'=>'form-horizontal','id'=>'myform']) !!}
 					@endif
 
 		                @include('includes.errors')
 						<div class="form-group">
-							{!! Form::label('tutorial','Tutorial', ['class'=>'control-label col-md-3']) !!}
+							{!! Form::label('total','Project Work', ['class'=>'control-label col-md-3']) !!}
 							<div class="col-md-6">
-								{!! Form::number('tutorial',null, ['class'=>'form-control lab','id'=>'tutorial','required'=>'required','min'=>0,'max'=>5]) !!}
-							</div>
-						</div>
-
-						<div class="form-group">
-							{!! Form::label('mid_term','Mid Term', ['class'=>'control-label col-md-3']) !!}
-							<div class="col-md-6">
-								{!! Form::number('mid_term',null, ['class'=>'form-control lab','id'=>'mid_term','min'=>0,'max'=>5]) !!}
-							</div>
-						</div>
-
-						<div class="form-group">
-							{!! Form::label('attendance','Attendance', ['class'=>'control-label col-md-3']) !!}
-							<div class="col-md-6">
-								{!! Form::number('attendance',null, ['class'=>'form-control lab','id'=>'attendance','min'=>0,'max'=>5]) !!}
-							</div>
-						</div>
-
-						<div class="form-group">
-							{!! Form::label('lab_seventy_mark','70% Mark', ['class'=>'control-label col-md-3']) !!}
-							<div class="col-md-6">
-								{!! Form::number('lab_seventy_mark',null, ['class'=>'form-control lab','id'=>'lab_seventy_mark','min'=>0,'max'=>35]) !!}
-							</div>
-						</div>
-
-						<div class="form-group">
-							{!! Form::label('total','Total', ['class'=>'control-label col-md-3']) !!}
-							<div class="col-md-6">
-								{!! Form::number('total',null, ['class'=>'readonly_input','readonly'=>'readonly','id'=>'total']) !!}
+								{!! Form::number('total',null, ['class'=>'form-control itpm','id'=>'total','required'=>'required','min'=>0,'max'=>100]) !!}
 							</div>
 						</div>
 
@@ -148,7 +120,6 @@
 						<input type="hidden" name="student_id"	value="{{ $student->id }}">
 						<input type="hidden" name="exam_time_id"	value="{{ $course_e->exam_time_id }}">
 						<input type="hidden" name="course_e_id"	value="{{ $course_e->id }}">
-						<input type="hidden" name="inter_seventy_id"	value="{{ $lab_mark->inter_seventy_id }}">
 
 						<div class="form-group">
 							{!! Form::label(null,null, ['class'=>'control-label col-md-3']) !!}
@@ -172,62 +143,23 @@
 
 
 @section('scripts')
-    <script type="text/javascript" src="{{asset('js/jquery/jquery.validate.min.js')}}"></script>
-    <script type="text/javascript" src="{{asset('js/jquery/additional-methods.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/jquery/jquery.validate.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/jquery/additional-methods.min.js')}}"></script>
 
-	<script type="text/javascript">
-		$('.lab').keyup(function(){
+<script type="text/javascript">
 
-			var tutorial         = parseFloat($('#tutorial').val());
-			var mid_term         = parseFloat($('#mid_term').val());
-			var attendance       = parseFloat($('#attendance').val());
-			var lab_seventy_mark = parseFloat($('#lab_seventy_mark').val());
-
-			if (isNaN(tutorial)){
-				tutorial = 0;
-			}
-
-			if (isNaN(mid_term)){
-				mid_term = 0;
-			}
-
-			if (isNaN(attendance)){
-				attendance = 0;
-			}
-
-			if (isNaN(lab_seventy_mark)){
-				lab_seventy_mark = 0;
-			}
-
-    		$('#total').val(Math.ceil(tutorial+mid_term+attendance+lab_seventy_mark));
-		});
-
-		$(document).ready(function(){
-
-    		//validation
-    		$(function(){
-
-    			$("#myform").validate({
-    				rules:
-    				{
-
-    				}
-    			});
-    		});
-
-    	});
-
-		jQuery(document).ready(function() {
-		    jQuery('#is_absent').change(function() {
-		    	if($(this).prop('checked')==true){
-		    		var r = confirm("Are you sure ,this student is absent?\nBecause every question mark is to be 0 if he/she is absent");
-		            if (r == true) {
-		                $(this).prop('checked', true);
-		            }else{
-						$(this).prop('checked', false);
-		            }
-		    	}
-		    });
-		});
-	</script>
+	jQuery(document).ready(function() {
+	    jQuery('#is_absent').change(function() {
+	    	if($(this).prop('checked')==true){
+	    		var r = confirm("Are you sure ,this student is absent?\nBecause every question mark is to be 0 if he/she is absent");
+	            if (r == true) {
+	                $(this).prop('checked', true);
+	            }else{
+					$(this).prop('checked', false);
+	            }
+	    	}
+	    });
+	});
+	
+</script>
 @endsection

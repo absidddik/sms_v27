@@ -19,16 +19,32 @@
                     @include('includes.errors')
                     <div class="form-horizontal">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Semester</label>
+                            <label class="col-sm-3 control-label">Exam Time</label>
                             <div class="col-sm-6">
-                                <select id="semester" name="semester_id" class="form-control select">
-                                    <option value="">Select Semester</option>
-                                    @if ($semesteres)
-                                        @foreach ($semesteres as $semester)
-                                            <option value="{{ $semester->id }}">{{ $semester->semester }}</option>
+                                <select id="exam_time_id" class="form-control select get_d" name="exam_time">
+                                    <option value="">Select Exam Time</option>
+                                    @if ($exam_times)
+                                        @foreach ($exam_times as $exam_time)
+                                            <option value="{{ $exam_time->id }}">{{ $exam_time->exam_month.' '.$exam_time->exam_year }}</option>
                                         @endforeach
                                     @endif
                                 </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Semester</label>
+                                <div class="col-sm-6">
+                                    <select id="semester" name="semester_id" class="form-control select get_d">
+                                        <option value="">Select Semester</option>
+                                        @if ($semesteres)
+                                            @foreach ($semesteres as $semester)
+                                                <option value="{{ $semester->id }}">{{ $semester->semester }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -84,9 +100,10 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#semester').on('change', function () {
+            $('.get_d').on('change', function () {
 
-                var semester_id = $(this).val();
+                var semester_id = $('#semester').val();
+                var exam_time_id = $('#exam_time_id').val();
                 if (semester_id == '') {
                     $('#unhide').prop('hidden', true);
                 } else {
@@ -94,7 +111,7 @@
                     $.ajax({
                         url: "{{ route('student-enrolls.get_data') }}",
                         type: "get",
-                        data: {'semester_id': semester_id},
+                        data: {'semester_id': semester_id,'exam_time_id': exam_time_id},
                         dataType: "json",
                         success: function (data) {
                             $('#show_data').html(data);
@@ -110,62 +127,14 @@
 
     <script>
         function unroll(elmnt, enroll_id) {
-            var semester_id = $('#semester').val();
-            $.ajax({
-                url: "{{ route('student-enrolls.unroll') }}",
-                type: "get",
-                data: {'enroll_id': enroll_id , 'semester_id': semester_id},
-                dataType: "json",
-                success: function (data) {
-                    $('#unhide').prop('hidden', false);
-                    $('#show_data').html(data);
-                },
-                error: function () {
-                    $('#show_data').html("No data found");
-                }
-            });
-        }
-    </script>
-
-    <script>
-        function unrolls() {
-
-            var semester_id = $('#semester').val();
-            var enroll_id = $("input[name='student_id[]']")
-                .map(function(){return $(this).val();}).get();
-            $.ajax({
-                url: "{{ route('student-enrolls.unroll') }}",
-                type: "get",
-                data: {'enroll_id': enroll_id , 'semester_id': semester_id},
-                dataType: "json",
-                success: function (data) {
-                    $('#unhide').prop('hidden', false);
-                    $('#show_data').html(data);
-                },
-                error: function () {
-                    $('#show_data').html("No data found");
-                }
-            });
-        }
-    </script>
-
-    <script type="text/javascript">
-        $("#btn_").on('click', function () {
-            var enroll_id = "";
-            var ischecked = "";
-            $(":checkbox").each(function () {
-                var ischecked = $(this).is(":checked");
-                if (ischecked && $(this).val() != 'on') {
-                    enroll_id += $(this).val()+ ",";
-                }
-            });
-            if(enroll_id)
-            {
+            var r = confirm("Are you sure want to uneroll this student?");
+            if (r == true) {
                 var semester_id = $('#semester').val();
+                var exam_time_id = $('#exam_time_id').val();
                 $.ajax({
                     url: "{{ route('student-enrolls.unroll') }}",
                     type: "get",
-                    data: {'enroll_id': enroll_id , 'semester_id': semester_id},
+                    data: {'enroll_id': enroll_id , 'semester_id': semester_id,'exam_time_id': exam_time_id},
                     dataType: "json",
                     success: function (data) {
                         $('#unhide').prop('hidden', false);
@@ -175,6 +144,65 @@
                         $('#show_data').html("No data found");
                     }
                 });
+            }
+        }
+    </script>
+
+    <script>
+        function unrolls() {
+            var r = confirm("Are you sure want to uneroll this students?");
+            if (r == true) {
+                var semester_id = $('#semester').val();
+                var exam_time_id = $('#exam_time_id').val();
+                var enroll_id = $("input[name='student_id[]']")
+                    .map(function(){return $(this).val();}).get();
+                $.ajax({
+                    url: "{{ route('student-enrolls.unroll') }}",
+                    type: "get",
+                    data: {'enroll_id': enroll_id , 'semester_id': semester_id,'exam_time_id': exam_time_id},
+                    dataType: "json",
+                    success: function (data) {
+                        $('#unhide').prop('hidden', false);
+                        $('#show_data').html(data);
+                    },
+                    error: function () {
+                        $('#show_data').html("No data found");
+                    }
+                });
+            }
+        }
+    </script>
+
+    <script type="text/javascript">
+        $("#btn_").on('click', function () {
+            var r = confirm("Are you sure want to uneroll this students?");
+            if (r == true) {
+                var enroll_id = "";
+                var ischecked = "";
+                $(":checkbox").each(function () {
+                    var ischecked = $(this).is(":checked");
+                    if (ischecked && $(this).val() != 'on') {
+                        enroll_id += $(this).val()+ ",";
+                    }
+                });
+                if(enroll_id)
+                {
+                    var semester_id = $('#semester').val();
+                    var exam_time_id = $('#exam_time_id').val();
+                    $.ajax({
+                        url: "{{ route('student-enrolls.unroll') }}",
+                        type: "get",
+                        data: {'enroll_id': enroll_id , 'semester_id': semester_id,'exam_time_id': exam_time_id},
+                        dataType: "json",
+                        success: function (data) {
+                            $('#unhide').prop('hidden', false);
+                            $('#show_data').html(data);
+                        },
+                        error: function () {
+                            $('#show_data').html("No data found");
+                        }
+                    });
+                }
             }
         });
     </script>

@@ -11,6 +11,11 @@
         .bordersolid{
         	border-color: 1px solid black!important;
         }
+        table tr td,table tr th{
+        	padding: 0px !important;
+        	margin: 0px !important;
+        	line-height: 20px !important;
+        }
     </style>
 </head>
 <body>
@@ -128,14 +133,48 @@
 					@foreach ($results as $result)
 						<tr>
 							<td class="bordersolid">{{ $result->exam_roll }}</td>
-							<td class="bordersolid">{{ round($result->seventy_total) }}</td>
-							<td class="bordersolid">{{ round($result->attendance) }}</td>
-							<td class="bordersolid">{{ round($result->prefer_tutorial) }}</td>
-							@if ($c_show['t'])
-								<td class="bordersolid">{{ round($result->mid_term) }}</td>
+
+							{{-- seventy_total --}}
+							@if ($c_show['s'])
+								<td class="bordersolid">{{ round($result->seventy_total) }}</td>
+							@else
+								<td class="bordersolid"></td>
 							@endif
-							<td class="bordersolid">{{ round($result->seventy_total + $result->total) }}</td>
-							<td class="bordersolid">{{ grade($result->seventy_total + $result->total) }}</td>
+
+							{{-- attendance --}}
+							@if ($c_show['a'])
+								<td class="bordersolid">{{ round($result->attendance) }}</td>
+							@else
+								<td class="bordersolid"></td>
+							@endif
+
+							{{-- prefer_tutorial --}}
+							@if ($c_show['ct'])
+								<td class="bordersolid">{{ round($result->prefer_tutorial) }}</td>
+							@else
+								<td class="bordersolid"></td>
+							@endif
+
+							{{-- mid_term --}}
+							@if ($c_show['m'])
+								<td class="bordersolid">{{ round($result->mid_term) }}</td>
+							@else
+								<td class="bordersolid"></td>
+							@endif
+
+							{{-- total --}}
+							@if ($c_show['t'])
+								<td class="bordersolid">{{ round($result->seventy_total + $result->total) }}</td>
+							@else
+								<td class="bordersolid"></td>
+							@endif
+
+							{{-- grade --}}
+							@if ($c_show['g'])
+								<td class="bordersolid">{{ grade($result->seventy_total + $result->total) }}</td>
+							@else
+								<td class="bordersolid"></td>
+							@endif
 						</tr>
 
 						@php
@@ -143,7 +182,7 @@
 							$i++;
 						@endphp
 
-						@if ($i==13 || $j==22)
+						@if ($i==25 || $j==42)
 							<tr>
 								<th class="text-center bordersolid" rowspan="2"><br><br>Exam Roll <br>No.</th>
 								<th class="text-center bordersolid" rowspan="2"><br><br>Theoretical <br>Marks <br>70/35</th>

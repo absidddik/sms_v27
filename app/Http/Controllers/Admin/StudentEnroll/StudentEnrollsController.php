@@ -2,25 +2,31 @@
 
 namespace App\Http\Controllers\Admin\StudentEnroll;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Admin\Batch;
-use App\Models\Admin\Semester;
-use App\Models\StudentEnroll\StudentEnroll;
-use App\Models\Admin\Student;
 use Auth;
 use Session;
+use App\Models\Admin\Batch;
+use Illuminate\Http\Request;
+use App\Models\Admin\Student;
+use App\Models\Admin\Semester;
+use App\Models\Admin\ExamTime;
+use App\Http\Controllers\Controller;
+use App\Models\StudentEnroll\StudentEnroll;
 
 class StudentEnrollsController extends Controller
 {
 	public function index(Request $request)
 	{
-		$batch_id = $request->batch_id;
+		$batch_id     = $request->batch_id;
+		$semester_id  = $request->semester_id;
+		$exam_time_id = $request->exam_time_id;
+
 		if ($batch_id == null) {
 			return redirect()->route('student-enroll.create');
 		}
-		$students = Student::select('students.id', 'students.image', 'students.batch_id', 'students.reg_no', 'students.exam_roll', 'students.name', 'students.email')
-		->leftJoin('student_enrolls', 'students.id', '=', 'student_enrolls.student_id')->whereNull('student_enrolls.student_id')->where('students.batch_id', $batch_id)->get();
+
+		$students = Student::select('id', 'image', 'batch_id', 'reg_no', 'exam_roll', 'name', 'email')
+								->Where('batch_id', $batch_id)
+								->get();
 
 		$jsonData = '';
 		if(!empty($students))
@@ -63,6 +69,7 @@ class StudentEnrollsController extends Controller
 	{
 		return view('admin.student_enroll.create')
 		->with('batches', Batch::all())
+		->with('exam_times', ExamTime::get())
 		->with('semesteres', Semester::all());
 	}
 
@@ -73,6 +80,7 @@ class StudentEnrollsController extends Controller
 		$this->validate($request, [
 			'batch_id' => 'required|numeric',
 			'semester_id' => 'required|numeric',
+			'exam_time' => 'required|numeric',
 			'student_id' => 'required',
 
 		]);
@@ -82,9 +90,10 @@ class StudentEnrollsController extends Controller
 
 		for ($i = 0; $i < count($student_id); $i++) {
 			$data[$i]['supervisor_id'] = Auth::user()->user_id;
-			$data[$i]['batch_id'] = $input['batch_id'];
-			$data[$i]['semester_id'] = $input['semester_id'];
-			$data[$i]['student_id'] = $student_id[$i];
+			$data[$i]['batch_id']      = $input['batch_id'];
+			$data[$i]['semester_id']   = $input['semester_id'];
+			$data[$i]['exam_time_id']  = $input['exam_time'];
+			$data[$i]['student_id']    = $student_id[$i];
 		}
 
 		if (StudentEnroll::insert($data)) {
@@ -102,6 +111,7 @@ class StudentEnrollsController extends Controller
 	public function enrolls_show()
 	{
 		return view('admin.student_enroll.view')
+		->with('exam_times', ExamTime::get())
 		->with('semesteres', Semester::all());
 	}
 
@@ -111,8 +121,9 @@ class StudentEnrollsController extends Controller
 
 	public function student_unroll(Request $request)
 	{
-		$ids				   = $request->input('enroll_id');
-		$semester_id = $request->input('semester_id');
+		$ids          = $request->input('enroll_id');
+		$semester_id  = $request->input('semester_id');
+		$exam_time_id = $request->input('exam_time_id');
 
 		if (is_string($ids)) {
 			$ids = explode(",", $ids);
@@ -123,7 +134,7 @@ class StudentEnrollsController extends Controller
 			return redirect()->route('student-enroll.create');
 		}
 
-		$jsonData = $this->get_jeson_data($semester_id);
+		$jsonData = $this->get_jeson_data($semester_id,$exam_time_id);
 		return json_encode($jsonData);
 	}
 
@@ -134,11 +145,13 @@ class StudentEnrollsController extends Controller
 	public function get_data_by_json_where_semester_id(Request $request)
 	{
 		$semester_id = $request->input('semester_id');
+		$exam_time_id = $request->input('exam_time_id');
+
 		if ($semester_id == null) {
 			return redirect()->route('student-enroll.create');
 		}
 
-		$jsonData = $this->get_jeson_data($semester_id);
+		$jsonData = $this->get_jeson_data($semester_id,$exam_time_id);
 		return json_encode($jsonData);
 
 	}
@@ -148,9 +161,11 @@ class StudentEnrollsController extends Controller
 
 
 
-	public function get_jeson_data( $semester_id = "")
+	public function get_jeson_data( $semester_id = "",$exam_time_id = "")
 	{
-		$student_enrolls = StudentEnroll::where('semester_id', $semester_id)->get();
+		$student_enrolls = StudentEnroll::where('semester_id', $semester_id)
+											->where('exam_time_id', $exam_time_id)
+											->get();
 
 		$jsonData = '';
 		if ($student_enrolls)

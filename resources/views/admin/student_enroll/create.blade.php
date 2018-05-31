@@ -22,7 +22,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Semester</label>
                             <div class="col-sm-6">
-                                <select name="semester_id" class="form-control select">
+                                <select id="semester_id" name="semester_id" class="form-control select test">
                                     <option value="">Select Semester</option>
                                     @if ($semesteres)
                                         @foreach ($semesteres as $semester)
@@ -34,9 +34,23 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="col-sm-3 control-label">Exam Time</label>
+                            <div class="col-sm-6">
+                                <select id="exam_time_id" class="form-control select test" name="exam_time">
+                                    <option value="">Select Exam Time</option>
+                                    @if ($exam_times)
+                                        @foreach ($exam_times as $exam_time)
+                                            <option value="{{ $exam_time->id }}">{{ $exam_time->exam_month.' '.$exam_time->exam_year }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-3 control-label">Batch</label>
                             <div class="col-sm-6">
-                                <select id="batch" name="batch_id" class="form-control select">
+                                <select id="batch" name="batch_id" class="form-control select test">
                                     <option value="">Select Batch</option>
                                     @if ($batches)
                                         @foreach ($batches as $batch)
@@ -97,9 +111,12 @@
 
     <script type="text/javascript">
     $(document).ready(function () {
-        $('#batch').on('change', function () {
+        $('.test').on('change', function () {
 
-            var batch_id = $(this).val();
+            var batch_id = $('#batch').val();
+            var semester_id = $('#semester_id').val();
+            var exam_time_id = $('#exam_time_id').val();
+
             if (batch_id == '') {
                 $('#unhide').prop('hidden', true);
             } else {
@@ -107,7 +124,7 @@
                 $.ajax({
                     url: "{{ route('student-enroll.index') }}",
                     type: "get",
-                    data: {'batch_id': batch_id},
+                    data: {'batch_id': batch_id,'semester_id': semester_id,'exam_time_id': exam_time_id},
                     dataType: "json",
                     success: function (data) {
                         $('#show_data').html(data);
@@ -117,6 +134,7 @@
                     }
                 });
             }
+            // alert(semester_id+exam_time_id+batch_id)
         });
     });
     </script>

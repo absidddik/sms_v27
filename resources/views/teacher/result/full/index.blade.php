@@ -136,7 +136,11 @@
     </table>
 
     <div class="col-sm-12">
-        <a class="btn btn-info" href="{{ route('pdf.thirty-percetn-mark',[$exam_time_id, $course_id, $semester_id]) }}">Full Result PDF</a><br> <br>
+        <a class="btn btn-success" href="{{ route('pdf.thirty-percetn-mark',[$exam_time_id, $course_id, $semester_id,'full']) }}">Full Result PDF Download</a>
+        <a class="btn btn-info" href="{{ route('pdf.thirty-percetn-mark',[$exam_time_id, $course_id, $semester_id,'thirty']) }}">Thirty Result PDF Download</a>
+        <a class="btn btn-primary" href="{{ route('pdf.thirty-percetn-mark',[$exam_time_id, $course_id, $semester_id,'WOTG']) }}">Without Total and Grade Result PDF Download</a>
+        <a class="btn btn-warning" href="{{ route('pdf.thirty-percetn-mark',[$exam_time_id, $course_id, $semester_id,'WOG']) }}">Without Total and Grade Result PDF Download</a>
+        <br> <br>
         @if (!$isSubmitted)
             {{Form::open(['route'=>'result.submit','method'=>'POST'])}}
                 <input type="hidden" name="exam_time_id" value="{{$exam_time_id}}">

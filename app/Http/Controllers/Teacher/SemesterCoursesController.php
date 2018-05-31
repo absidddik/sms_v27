@@ -24,15 +24,20 @@ class SemesterCoursesController extends Controller
             <ol class="list-group">';
             $courses = CourseEnroll::where('teacher_id',Auth::user()->user_id)->where('semester_id',$semester->semester_id)->get();
             foreach ($courses as $course) {
-                if(strpos(strtolower($course->course->name), 'viva voce') !== false){
+
+                if($course->course->type===4){
+                    $output .='<li class="list-group-item"><a href="'.
+                    route('internal.result.project-work.show',['course_id'=>$course->id,'semester_id'=>$semester->semester_id]).'">'.$course->course->name
+                    .'</a></li>';
+                }else if($course->course->type===3){
                     $output .='<li class="list-group-item"><a href="'.
                     route('internal.result.viva-voce.show',['course_id'=>$course->id,'semester_id'=>$semester->semester_id]).'">'.$course->course->name
                     .'</a></li>';
-                }else if(strpos(strtolower($course->course->name), 'lab') !== false){
+                }else if($course->course->type===2){
                     $output .='<li class="list-group-item"><a href="'.
                     route('internal.result.lab-mark.show',['course_id'=>$course->id,'semester_id'=>$semester->semester_id]).'">'.$course->course->name
                     .'</a></li>';
-                }else{
+                }else if($course->course->type===1){
                     $output .='<li class="list-group-item"><a href="'.
                     route('internal.result.thirty.show',['course_id'=>$course->id,'semester_id'=>$semester->semester_id]).'">'.$course->course->name
                     .'</a></li>';

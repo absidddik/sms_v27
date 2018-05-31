@@ -283,9 +283,14 @@
 
 	jQuery(document).ready(function() {
 	    jQuery('#is_absent').change(function() {
-	        if ($(this).prop('checked')) {
-	            alert("Are you sure ,this student is absent?\nBecause every question mark is to be 0 if he/she is absent"); //checked
-	        }
+	    	if($(this).prop('checked')==true){
+	    		var r = confirm("Are you sure ,this student is absent?\nBecause every question mark is to be 0 if he/she is absent");
+	            if (r == true) {
+	                $(this).prop('checked', true);
+	            }else{
+					$(this).prop('checked', false);
+	            }
+	    	}
 	    });
 	});
 	

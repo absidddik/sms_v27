@@ -146,6 +146,9 @@ Route::group(['prefix'=>'teacher'],function(){
     //...........view viva voce student list
     Route::get('result-viva-voce-show/{course_e_id}/{semester_id}', 'Teacher\Internal\ResultViewController@vivaShow')->name('internal.result.viva-voce.show');
 
+    //...........view project work student list
+    Route::get('result-project-work-show/{course_e_id}/{semester_id}', 'Teacher\Internal\ResultViewController@projectShow')->name('internal.result.project-work.show');
+
     //...........view lab student list
     Route::get('result-lab-mark-show/{course_e_id}/{semester_id}', 'Teacher\Internal\ResultViewController@labMarkShow')->name('internal.result.lab-mark.show');
 
@@ -169,6 +172,11 @@ Route::group(['prefix'=>'teacher'],function(){
     Route::get('internal/viva-voce-mark/{course_e_id}/{student_id}', 'Teacher\Internal\VivaVoceMarkController@edit')->name('internal.viva-voce-mark.edit');
     Route::post('internal/viva-voce-mark/store', 'Teacher\Internal\VivaVoceMarkController@store')->name('internal.viva-voce-mark.store');
     Route::put('internal/viva-voce-mark/{id}', 'Teacher\Internal\VivaVoceMarkController@update')->name('internal.viva-voce-mark.update');
+
+    // Project Work
+    Route::get('internal/project-work-mark/{course_e_id}/{student_id}', 'Teacher\Internal\ProjectWorksController@edit')->name('internal.project-work-mark.edit');
+    Route::post('internal/project-work-mark/store', 'Teacher\Internal\ProjectWorksController@store')->name('internal.project-work-mark.store');
+    Route::put('internal/project-work-mark/{id}', 'Teacher\Internal\ProjectWorksController@update')->name('internal.project-work-mark.update');
 
     // LabMarkController
     Route::get('internal/lab-mark/{course_e_id}/{student_id}', 'Teacher\Internal\LabMarkController@edit')->name('internal.lab-mark.edit');
@@ -210,7 +218,7 @@ Route::group(['prefix'=>'teacher'],function(){
     Route::post('submit','Result\Submit\SubmitController@submit')->name('result.submit');
 
     // PDF
-    Route::get('pdf/internal/thirty-percetn-mark/{e_id}/{c_id}/{s_id}','Teacher\PDF\PDFController@thirty_percent_mark')->name('pdf.thirty-percetn-mark');
+    Route::get('pdf/internal/thirty-percetn-mark/{e_id}/{c_id}/{s_id}/{format}','Teacher\PDF\PDFController@thirty_percent_mark')->name('pdf.thirty-percetn-mark');
     Route::get('pdf/internal/seventy-percetn-mark/{ce_id}','Teacher\PDF\PDFController@internal_seventy_percent_mark')->name('pdf.internal-seventy-percetn-mark');
 
     //............test 30%
